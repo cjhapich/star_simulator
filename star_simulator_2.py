@@ -94,38 +94,35 @@ class Shell:
         """Checks for completed models, either by failure or reaching the center"""
         if self.T < 0:
             self.complete = True
-            print(
-                "Negative temperature found: Terminating calculation\nPlease try again with different parameters\n")
-            print("The last shell was number " + str(self.i))
+            print("Negative temperature found: Terminating calculation\nPlease try again with different parameters\n")
+            print("The last shell was i = " + str(self.i))
             print("The data has been written to profile.csv")
         elif self.P < 0:
             self.complete = True
             print("Negative pressure found: Terminating calculation\nPlease try again with different parameters\n")
-            print("The last shell was number " + str(self.i))
+            print("The last shell was i = " + str(self.i))
             print("The data has been written to profile.csv")
         elif self.rho < 0:
             self.complete = True
             print("Negative density found: Terminating calculation\nPlease try again with different parameters\n")
-            print("The last shell was number " + str(self.i))
+            print("The last shell was i = " + str(self.i))
             print("The data has been written to profile.csv")
         elif self.L < 0:
             self.complete = True
-            print(
-                "Negative luminosity found: Terminating calculation\nPlease try again with different parameters\n")
-            print("The last shell was number " + str(self.i))
+            print("Negative luminosity found: Terminating calculation\nPlease try again with different parameters\n")
+            print("The last shell was i = " + str(self.i))
             print("The data has been written to profile.csv")
         elif self.m < self.Ms * 0.05 and (self.r > self.Rs * 0.3 or self.L > self.Ls * 0.3):
             self.complete = True
             print("Too much mass and/or luminosity is generated in the center\n"
                   "Please try again with different parameters\n")
-            print("The last shell was number " + str(self.i))
+            print("The last shell was i = " + str(self.i))
             print("The data has been written to profile.csv")
         elif self.m < self.Ms * 0.1 and self.r < self.Rs * 0.1 and self.L < self.Ls * 0.1:
             self.center = True
             print("Success! You made it close enough to the center before stuff got weird\n")
-            print("The last shell was number " + str(self.i))
+            print("The last shell was i = " + str(self.i))
             print("The data has been written to profile.csv")
-            # Add extrapolation to the center here? Otherwise don't complete and add new else to step
 
     def update_profiles(self):
         """Adds latest value to profiles"""
@@ -144,28 +141,28 @@ class Shell:
         """Built-in procedure to plot mass, temperature, pressure, density, luminosity, and nuclear energy profiles"""
         fig, ax = plt.subplots(3, 2)
 
-        ax[0, 0].scatter(self.rprofile, [i / mass for i in self.mprofile], c='lightgrey')
-        ax[0, 0].set_xlabel('Radius (m)');
+        ax[0, 0].scatter(self.rprofile, [i / mass for i in self.mprofile], c='lightgrey', s=10)
+        ax[0, 0].set_xlabel('Radius (m)')
         ax[0, 0].set_ylabel('Interior Mass (total)')
 
-        ax[0, 1].scatter(self.rprofile, self.Tprofile, c='firebrick')
-        ax[0, 1].set_xlabel('Radius (m)');
+        ax[0, 1].scatter(self.rprofile, self.Tprofile, c='firebrick', s=10)
+        ax[0, 1].set_xlabel('Radius (m)')
         ax[0, 1].set_ylabel('Temperature (K)')
 
-        ax[1, 0].scatter(self.rprofile, self.Pprofile, c='olivedrab')
-        ax[1, 0].set_xlabel('Radius (m)');
+        ax[1, 0].scatter(self.rprofile, self.Pprofile, c='olivedrab', s=10)
+        ax[1, 0].set_xlabel('Radius (m)')
         ax[1, 0].set_ylabel('Pressure (Pa)')
 
-        ax[1, 1].scatter(self.rprofile, self.rhoprofile, c='blueviolet')
-        ax[1, 1].set_xlabel('Radius (m)');
+        ax[1, 1].scatter(self.rprofile, self.rhoprofile, c='blueviolet', s=10)
+        ax[1, 1].set_xlabel('Radius (m)')
         ax[1, 1].set_ylabel('Density (kg m^-3)')
 
-        ax[2, 0].scatter(self.rprofile, self.Lprofile, c='gold')
-        ax[2, 0].set_xlabel('Radius (m)');
+        ax[2, 0].scatter(self.rprofile, self.Lprofile, c='gold', s=10)
+        ax[2, 0].set_xlabel('Radius (m)')
         ax[2, 0].set_ylabel('Interior Luminosity (W)')
 
-        ax[2, 1].scatter(self.rprofile, self.epsilonprofile, c='skyblue')
-        ax[2, 1].set_xlabel('Radius (m)');
+        ax[2, 1].scatter(self.rprofile, self.epsilonprofile, c='skyblue', s=10)
+        ax[2, 1].set_xlabel('Radius (m)')
         ax[2, 1].set_ylabel('Energy Generation (W m^3 kg^-2)')
 
         fig.set_size_inches(9, 9)
@@ -222,7 +219,7 @@ class Shell:
         return epsilon_pp + epsilon_CNO + epsilon_He
 
     def convection(self):
-        """Returns boolean for method of heat transfer. Always call before updating profiles of P and T for indexing."""
+        """Returns boolean for method of heat transfer"""
         P1 = self.Pprofile[-1]
         T1 = self.Tprofile[-1]
         dlnPdlnT = self.T * (self.P - P1) / (self.P * (self.T - T1))
@@ -374,11 +371,11 @@ class Shell:
 
         elif self.center:  # Center is technically complete but needs calculated before self.complete turns True
             self.rho = 3 * self.m / (4 * math.pi * self.r ** 3)  # Estimate central density from last shell
+            self.convective = self.convection()
             self.P = self.P + 2 * math.pi * G * self.rho ** 2 * self.r ** 2 / 3
             self.T = self.nr_solve()
             self.epsilon = self.L / self.m
             self.kappa = self.calc_kappa()
-            self.convective = self.convection()
 
             # Definition values of center
             self.L = 0
@@ -402,7 +399,7 @@ class Shell:
 # RUN INTEGRATION
 
     def run(self):
-        """Contains the functions that need to be run at each step in the iteration"""
+        """Contains the methods that need to be run at each step in the iteration"""
         while not self.complete:
             self.step()  # Compute next shell parameters
             self.zone_progress()  # Update step sizes if needed
@@ -412,6 +409,7 @@ class Shell:
 
 
 # For the sun
+
 '''
 mass = Msun
 Teff = 5776
@@ -428,5 +426,5 @@ metal = float(input("Enter the metal mass fraction: "))
 
 star = Shell(mass, Teff, Leff, hydrogen, metal)
 star.run()
-star.plot()
-star.write_df()
+star.plot()  # Remove if a plot is not desired
+star.write_df()  # Remove if a csv file is not desired
